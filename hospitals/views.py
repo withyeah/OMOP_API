@@ -1,4 +1,5 @@
 from django.core import serializers
+from django.http import Http404
 from django.db.models import Count, Max, Q
 from django.http.response import HttpResponse
 from django.shortcuts import get_list_or_404, render
@@ -6,17 +7,19 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Concept, Death, Person, VisitOccurrence
-from .serializers import PersonSerializer, VisitOccurrenceSerializer
 
 # Create your views here.
 
 @api_view(['GET'])
 def patients_list(request):
-    queryset = get_list_or_404(Person)
+    queryset = Person.objects.all()
+    if not queryset:
+        raise Http404('No Person model matches the given query.')
     patients_count = queryset.count()
 
     male = Concept.objects.get(concept_name='MALE').concept_id
     female = Concept.objects.get(concept_name='FEMALE').concept_id
+
     gender_male_count = Person.objects.filter(gender_concept_id=male).count()
     gender_female_count = Person.objects.filter(gender_concept_id=female).count()
 
@@ -49,14 +52,16 @@ def patients_list(request):
 
 @api_view(['GET'])
 def visits_list(request):
-    queryset = get_list_or_404(VisitOccurrence)
+    queryset = VisitOccurrence.objects.all()
+    if not queryset:
+        raise Http404('No VisitOccurrence model matches the given query.')
 
     visit_type_data = {}
     visit_gender_data = {}
     visit_race_data = {}
     visit_ethnicity_data = {}
 
-    for visit in queryset.iterator():
+    for visit in queryset.iterator(chunk_size=1000):
         visit_type = Concept.objects.get(concept_id=visit.visit_concept_id).concept_name
         visit_type_data[visit_type] = visit_type_data.get(visit_type, 0) + 1
 
