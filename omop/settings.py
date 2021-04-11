@@ -34,6 +34,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'hospitals.apps.HospitalsConfig',
     'rest_framework',
+    'drf_yasg',
+    'drf_link_header_pagination',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -131,3 +133,13 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_PAGINATION_CLASS': 'hospitals.paginators.LinkHeaderPagination',
+#     'PAGE_SIZE': 100
+# }
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'drf_link_header_pagination.LinkHeaderPagination',
+    'PAGE_SIZE': 100
+}
